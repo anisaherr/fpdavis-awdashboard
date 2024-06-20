@@ -203,7 +203,7 @@ years = load_years()
 
 # Sidebar
 with st.sidebar:
-    st.image('C:\\Users\\anisa\\Downloads\\logoaw.png', use_column_width=True)
+    st.image('logoaw.png', use_column_width=True)
     page = st.selectbox("Select Page", ["Sales Overview", "Customer Analysis"])
 
 if page == "Sales Overview":
