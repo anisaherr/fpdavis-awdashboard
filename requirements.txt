@@ -2,4 +2,5 @@ streamlit
 pandas
 plotly
 mysql-connector-python
-pyttsx3==2.90
+gtts
+pydub
