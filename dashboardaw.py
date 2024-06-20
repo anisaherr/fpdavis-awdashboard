@@ -4,7 +4,11 @@ import mysql.connector
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import pyttsx3
+from gtts import gTTS
+from pydub import AudioSegment
+from pydub.playback import play
+import tempfile
+import os
 
 st.set_page_config(layout="wide", page_title="Adventure Works Dashboard")
 
@@ -22,12 +26,13 @@ def create_connection():
         st.error(f"Error: {err}")
         return None
 
-def text_to_speech(text):
-    engine = pyttsx3.init()
-    engine.setProperty('rate', 130)   
-    engine.setProperty('volume', 1.0)  
-    engine.say(text)
-    engine.runAndWait()
+def text_to_speech_gtts(text):
+    tts = gTTS(text=text, lang='en')
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmpfile:
+        tts.save(tmpfile.name)
+        sound = AudioSegment.from_mp3(tmpfile.name)
+        play(sound)
+        os.remove(tmpfile.name)
 
 def load_data_overview(year):
     conn = create_connection()
@@ -253,8 +258,9 @@ if page == "Sales Overview":
             
             st.markdown(f"<p style='padding-top: 8px;'></p>", unsafe_allow_html=True)
             if st.button("Convert to Speech"):
-                text_to_speech("Berdasarkan analisis data penjualan Adventure Works dari tahun dua ribu satu hingga dua ribu empat, terlihat tren peningkatan yang signifikan dalam kinerja penjualan perusahaan. Total penjualan meningkat dari tiga koma dua tujuh juta USD pada tahun dua ribu satu menjadi sembilan koma tujuh tujuh juta USD pada tahun dua ribu empat, yang menunjukkan pertumbuhan lebih dari tiga kali lipat dalam empat tahun. Kuantitas produk yang terjual juga meningkat secara konsisten setiap tahun, dari satu koma nol ribu unit pada tahun dua ribu satu menjadi tiga puluh dua koma tiga ribu unit pada tahun dua ribu empat. Meskipun total penjualan dan kuantitas meningkat, profit tetap stabil dengan sedikit penurunan dari empat koma nol tujuh juta USD pada tahun dua ribu tiga menjadi empat koma nol lima juta USD pada tahun dua ribu empat. Persentase keuntungan relatif stabil dengan sedikit fluktuasi, menunjukkan efisiensi operasional yang baik. Margin keuntungan tetap kuat di sekitar empat puluh persen, mencerminkan kemampuan perusahaan untuk mempertahankan profitabilitas yang tinggi meskipun ada peningkatan dalam volume penjualan. Data ini menunjukkan performa yang mengesankan dan pertumbuhan yang berkelanjutan dari Adventure Works.")
-
+                text = f"Berdasarkan analisis data penjualan Adventure Works dari tahun dua ribu satu hingga dua ribu empat, terlihat tren peningkatan yang signifikan dalam kinerja penjualan perusahaan. Total penjualan meningkat dari tiga koma dua tujuh juta USD pada tahun dua ribu satu menjadi sembilan koma tujuh tujuh juta USD pada tahun dua ribu empat, yang menunjukkan pertumbuhan lebih dari tiga kali lipat dalam empat tahun. Kuantitas produk yang terjual juga meningkat secara konsisten setiap tahun, dari satu koma nol ribu unit pada tahun dua ribu satu menjadi tiga puluh dua koma tiga ribu unit pada tahun dua ribu empat. Meskipun total penjualan dan kuantitas meningkat, profit tetap stabil dengan sedikit penurunan dari empat koma nol tujuh juta USD pada tahun dua ribu tiga menjadi empat koma nol lima juta USD pada tahun dua ribu empat. Persentase keuntungan relatif stabil dengan sedikit fluktuasi, menunjukkan efisiensi operasional yang baik. Margin keuntungan tetap kuat di sekitar empat puluh persen, mencerminkan kemampuan perusahaan untuk mempertahankan profitabilitas yang tinggi meskipun ada peningkatan dalam volume penjualan. Data ini menunjukkan performa yang mengesankan dan pertumbuhan yang berkelanjutan dari Adventure Works."
+                text_to_speech_gtts(text)
+            
             col1, col2 = st.columns(2)
 
             with col1:
@@ -332,8 +338,8 @@ elif page == "Customer Analysis":
 
         st.markdown(f"<p style='padding-top: 8px;'></p>", unsafe_allow_html=True)
         if st.button("Convert to Speech"):
-            text_to_speech("Analisis pelanggan Adventure Works menunjukkan bahwa total pelanggan mencapai delapan belas ribu lima ratus dengan rata-rata pendapatan per pelanggan sebesar empat ratus delapan puluh enam dolar dan empat sen. Pembagian gender pelanggan cukup seimbang, dengan sembilan ribu tiga ratus lima puluh satu pelanggan laki-laki dan sembilan ribu seratus tiga puluh tiga pelanggan perempuan. Hal ini menandakan bahwa produk dan layanan Adventure Works berhasil menarik minat yang hampir sama antara kedua gender, menunjukkan inklusivitas dan daya tarik yang luas dari penawaran perusahaan.")
-
+            text = f"Analisis pelanggan Adventure Works menunjukkan bahwa total pelanggan mencapai delapan belas ribu lima ratus dengan rata-rata pendapatan per pelanggan sebesar empat ratus delapan puluh enam dolar dan empat sen. Pembagian gender pelanggan cukup seimbang, dengan sembilan ribu tiga ratus lima puluh satu pelanggan laki-laki dan sembilan ribu seratus tiga puluh tiga pelanggan perempuan. Hal ini menandakan bahwa produk dan layanan Adventure Works berhasil menarik minat yang hampir sama antara kedua gender, menunjukkan inklusivitas dan daya tarik yang luas dari penawaran perusahaan."
+            text_to_speech_gtts(text)
         color_palette = ['#003f5c', '#58508d', '#bc5090', '#ff6361', '#ffa600']
 
         col1, col2 = st.columns(2)
