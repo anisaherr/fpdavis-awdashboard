@@ -338,8 +338,8 @@ elif page == "Customer Analysis":
         if st.button("Convert to Speech"):
             text = f"Analisis pelanggan Adventure Works menunjukkan bahwa total pelanggan mencapai delapan belas ribu lima ratus dengan rata-rata pendapatan per pelanggan sebesar empat ratus delapan puluh enam dolar dan empat sen. Pembagian gender pelanggan cukup seimbang, dengan sembilan ribu tiga ratus lima puluh satu pelanggan laki-laki dan sembilan ribu seratus tiga puluh tiga pelanggan perempuan. Hal ini menandakan bahwa produk dan layanan Adventure Works berhasil menarik minat yang hampir sama antara kedua gender, menunjukkan inklusivitas dan daya tarik yang luas dari penawaran perusahaan."
             audio_file = text_to_speech_gtts(text)
-                st.audio(audio_file)
-                os.remove(audio_file)
+            st.audio(audio_file)
+            os.remove(audio_file)
             
         color_palette = ['#003f5c', '#58508d', '#bc5090', '#ff6361', '#ffa600']
 
