@@ -61,6 +61,21 @@ def load_data_overview(year):
         """
         df_sales_by_month = pd.read_sql(query_sales_by_month, conn)
 
+        query = f"""
+        SELECT 
+            SUM(SalesAmount) AS TotalSales, 
+            SUM(SalesAmount - TotalProductCost) AS Profit,
+            dimproduct.EnglishProductName AS Product,
+            dimsalesterritory.SalesTerritoryCountry AS Territory
+        FROM factinternetsales
+        JOIN dimproduct ON factinternetsales.ProductKey = dimproduct.ProductKey
+        JOIN dimsalesterritory ON factinternetsales.SalesTerritoryKey = dimsalesterritory.SalesTerritoryKey
+        JOIN dimtime ON factinternetsales.OrderDateKey = dimtime.TimeKey
+        WHERE dimtime.CalendarYear = {year}
+        GROUP BY dimproduct.EnglishProductName, dimsalesterritory.SalesTerritoryCountry
+        """
+        df = pd.read_sql(query, conn)
+
         query_sales_by_category = f"""
         SELECT 
             dimproductcategory.EnglishProductCategoryName AS Category,
@@ -109,7 +124,7 @@ def load_data_overview(year):
 
         df_top_sales_by_country['SalesTerritoryCountry'] = df_top_sales_by_country['SalesTerritoryCountry'].replace(country_mapping)
 
-        return df_sales,df_product_sales, df_sales_by_month, df_sales_by_category, df_top_sales_by_country
+        return df_sales, df, df_product_sales, df_sales_by_month, df_sales_by_category, df_top_sales_by_country
     except mysql.connector.Error as err:
         st.error(f"Error: {err}")
         return None, None, None, None
@@ -231,7 +246,7 @@ if page == "Sales Overview":
     selected_year = st.sidebar.selectbox("Select Year", options=years)
 
     if selected_year:
-        df_sales, df_product_sales, df_sales_by_month, df_sales_by_category, df_top_sales_by_country = load_data_overview(selected_year)
+        df, df_sales, df_product_sales, df_sales_by_month, df_sales_by_category, df_top_sales_by_country = load_data_overview(selected_year)
 
         if df_sales is not None:
             st.title(f"Sales Overview - {selected_year}")
@@ -280,13 +295,24 @@ if page == "Sales Overview":
                 #Grafik Sales by Category
                 fig_sales_category = px.pie(df_sales_by_category, names='Category', values='Sales', title='Sales by Category', color_discrete_sequence=['#003f5c','#665191','#a05195'])
                 st.plotly_chart(fig_sales_category, use_container_width=True)
+                
+                #Scatter
+                fig_scatter = px.scatter(
+                    df,
+                    x='TotalSales',
+                    y='Profit',
+                    color='Territory',
+                    hover_data=['Product'],
+                    title='Sales vs. Profit Analysis'
+                )
+                st.plotly_chart(fig_scatter, use_container_width=True)
 
             with col2:
-                st.markdown(f"<p style='padding-top: 10px;'></p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='padding-top: 5px;'></p>", unsafe_allow_html=True)
                 st.subheader("Grafik Sales by Month")
                 st.markdown("""
                 <div style='text-align: justify;'>
-                    Pada tahun 2001, penjualan mulai meningkat tajam pada bulan Desember, mencapai puncaknya di akhir tahun. Tahun 2002 menunjukkan fluktuasi yang lebih besar dengan beberapa penurunan tajam di pertengahan tahun, namun tetap menunjukkan peningkatan di bulan-bulan terakhir. Pada tahun 2003, penjualan menunjukkan tren yang terus meningkat sepanjang tahun dengan lonjakan signifikan di bulan November dan Desember. Tren ini berlanjut pada tahun 2004 dengan peningkatan penjualan yang stabil hingga mencapai puncaknya pada bulan Juni sebelum turun drastis. Data ini menunjukkan pola musiman dan potensi puncak penjualan di akhir tahun yang dapat dimanfaatkan untuk strategi penjualan dan pemasaran yang lebih efektif.
+                    Grafik garis sangat efektif digunakan untuk menggambarkan data penjualan dari tahun ke tahun seperti pada kasus ini karena mampu menunjukkan perubahan dan tren secara kontinu dan jelas. Pada tahun 2001, penjualan mulai meningkat tajam pada bulan Desember, mencapai puncaknya di akhir tahun. Tahun 2002 menunjukkan fluktuasi yang lebih besar dengan beberapa penurunan tajam di pertengahan tahun, namun tetap menunjukkan peningkatan di bulan-bulan terakhir. Pada tahun 2003, penjualan menunjukkan tren yang terus meningkat sepanjang tahun dengan lonjakan signifikan di bulan November dan Desember. Tren ini berlanjut pada tahun 2004 dengan peningkatan penjualan yang stabil hingga mencapai puncaknya pada bulan Juni sebelum turun drastis. Data ini menunjukkan pola musiman dan potensi puncak penjualan di akhir tahun yang dapat dimanfaatkan untuk strategi yang lebih efektif.
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -304,7 +330,13 @@ if page == "Sales Overview":
                 <div style='text-align: justify;'>
                     Grafik memperlihatkan bahwa sepeda (Bikes) mendominasi penjualan dengan persentase yang sangat tinggi, yaitu 100% pada tahun 2001 dan 2002, serta sedikit menurun menjadi 95,6% pada tahun 2003 dan 93,8% pada tahun 2004. Penjualan aksesoris (Accessories) dan pakaian (Clothing) mulai muncul pada tahun 2003 dan 2004, meskipun kontribusinya masih sangat kecil dibandingkan dengan penjualan sepeda. Hal ini menunjukkan bahwa Adventure Works sangat bergantung pada penjualan sepeda sebagai produk utama mereka, namun mulai menunjukkan diversifikasi produk dengan memperkenalkan aksesoris dan pakaian. 
                 """, unsafe_allow_html=True)
-                
+
+                st.markdown(f"<p style='padding-top: 80px;'></p>", unsafe_allow_html=True)
+                st.subheader("Sales vs. Profit Analysis")
+                st.markdown("""
+                <div style='text-align: justify;'>
+                Dari analisis data penjualan dan profit Adventure Works untuk tahun 2001 hingga 2004, terlihat adanya korelasi positif yang kuat antara total penjualan dan profit di berbagai wilayah. Scatter plot digunakan karena memberikan visualisasi yang jelas tentang hubungan antara dua variabel kontinu, dalam hal ini total penjualan dan profit, serta memungkinkan identifikasi pola atau tren yang mungkin tidak terlihat dalam tabel data biasa. Visualisasi ini menunjukkan bahwa Amerika Serikat konsisten mendominasi dengan total penjualan dan profit tertinggi, diikuti oleh Australia dan Kanada. Selain itu, scatter plot membantu mengidentifikasi outlier atau nilai ekstrem yang dapat memberikan wawasan tambahan tentang anomali atau peluang pasar tertentu. Dengan menggunakan scatter plot, kita dapat dengan mudah melihat distribusi data dan memahami bagaimana performa penjualan di berbagai wilayah berkontribusi terhadap profit perusahaan. 
+                """, unsafe_allow_html=True)
         else:
             st.error("Data not available for the selected year.")
 
