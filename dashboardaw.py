@@ -331,7 +331,7 @@ if page == "Sales Overview":
                     Grafik memperlihatkan bahwa sepeda (Bikes) mendominasi penjualan dengan persentase yang sangat tinggi, yaitu 100% pada tahun 2001 dan 2002, serta sedikit menurun menjadi 95,6% pada tahun 2003 dan 93,8% pada tahun 2004. Penjualan aksesoris (Accessories) dan pakaian (Clothing) mulai muncul pada tahun 2003 dan 2004, meskipun kontribusinya masih sangat kecil dibandingkan dengan penjualan sepeda. Hal ini menunjukkan bahwa Adventure Works sangat bergantung pada penjualan sepeda sebagai produk utama mereka, namun mulai menunjukkan diversifikasi produk dengan memperkenalkan aksesoris dan pakaian. 
                 """, unsafe_allow_html=True)
 
-                st.markdown(f"<p style='padding-top: 80px;'></p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='padding-top: 40px;'></p>", unsafe_allow_html=True)
                 st.subheader("Sales vs. Profit Analysis")
                 st.markdown("""
                 <div style='text-align: justify;'>
