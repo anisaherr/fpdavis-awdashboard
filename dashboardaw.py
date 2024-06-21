@@ -246,7 +246,7 @@ if page == "Sales Overview":
     selected_year = st.sidebar.selectbox("Select Year", options=years)
 
     if selected_year:
-        df, df_sales, df_product_sales, df_sales_by_month, df_sales_by_category, df_top_sales_by_country = load_data_overview(selected_year)
+        df_sales, df, df_product_sales, df_sales_by_month, df_sales_by_category, df_top_sales_by_country = load_data_overview(selected_year)
 
         if df_sales is not None:
             st.title(f"Sales Overview - {selected_year}")
